@@ -5,6 +5,6 @@ This repository contains implementation of very simple examples to learn fundame
 To Run:
 ```
 npm init
-npm i express nodemon socket.io
+npm i express nodemon socket.io dotenv app-root-path
 npm start
 ```
