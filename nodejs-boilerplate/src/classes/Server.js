@@ -1,17 +1,17 @@
 import express from "express";
+import { createServer } from "http";
 
 export default class Server {
-  constructor(port, routes, middlewares) {
+  constructor(serverModel) {
+    this.http = serverModel.http;
     this.app = express();
+    if (this.http) {
+      this.server = createServer(this.app);
+    }
 
-    this.init();
-    this.useMiddlewares(middlewares);
-    this.addRoutes(routes);
-    this.listenServer(port);
-  }
-
-  init() {
-    // initialize stuff here
+    this.useMiddlewares(serverModel.middlewares);
+    this.addRoutes(serverModel.routes);
+    this.listenServer(serverModel.port);
   }
 
   useMiddlewares(middlewares) {
@@ -28,6 +28,16 @@ export default class Server {
   }
 
   listenServer(port) {
-    this.app.listen(port, () => console.log(`Server started on port ${port}`));
+    if (port !== undefined) {
+      if (this.http === true) {
+        this.server.listen(port, () =>
+          console.log(`Http Server started on port ${port}`)
+        );
+      } else {
+        this.app.listen(port, () =>
+          console.log(`Express Server started on port ${port}`)
+        );
+      }
+    }
   }
 }
