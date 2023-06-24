@@ -2,8 +2,18 @@ import { Server } from "socket.io";
 
 export default class SocketIo {
   constructor(socketIoModel) {
-    this.io = new Server(socketIoModel.server, {});
+    this.initSocket(socketIoModel.server);
     this.addEvents(socketIoModel.events);
+  }
+
+  initSocket(server) {
+    this.io = new Server(server, {
+      /*
+      cors: {
+        origin: "*",
+      },
+      */
+    });
   }
 
   addEvents(events) {
