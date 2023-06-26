@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Collaborative Whiteboard</title>
+  <style>
+    #board {
+      border: 1px solid black;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="board" width="800" height="600"></canvas>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    const canvas = document.getElementById('board');
+    const context = canvas.getContext('2d');
+
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', endDrawing);
+    canvas.addEventListener('mouseout', endDrawing);
+
+    let isDrawing = false;
+
+    function startDrawing(event) {
+      isDrawing = true;
+      const position = getMousePosition(event);
+      socket.emit('startDrawing', position);
+    }
+
+    function draw(event) {
+      if (!isDrawing) return;
+      const position = getMousePosition(event);
+      socket.emit('draw', position);
+      drawOnBoard(position);
+    }
+
+    function endDrawing(event) {
+      isDrawing = false;
+      socket.emit('endDrawing');
+    }
+
+    function getMousePosition(event) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top
+      };
+    }
+
+    socket.on('draw', function (position) {
+      drawOnBoard(position);
+    });
+
+    socket.on('startDrawing', function (position) {
+      context.beginPath();
+      context.moveTo(position.x, position.y);
+    });
+
+    socket.on('endDrawing', function () {
+      context.closePath();
+    });
+
+    function drawOnBoard(position) {
+      context.lineTo(position.x, position.y);
+      context.stroke();
+    }
+  </script>
+</body>
+</html>
